@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+	<title>Title</title>
+</head>
+<body>
+	<div>
+		<div class="parent" id="parent">
+			<p class="child" id="child"></p>
+		</div>
+	</div>
+
+	<script>
+		/*
+		 * 元素和复合选择器比对
+		 * */
+		function matchElement (selector, element) {
+			let starter = 0;
+			let isMatch = true;
+
+			while (starter < selector.length) {
+				let [singleSelector] = selector.substring(starter).match(/#[a-zA-Z]*|\.[a-zA-Z]*|[a-zA-Z]*/);
+
+				if (singleSelector.match(/\.[a-zA-Z]*/)) {
+					let className = singleSelector.match(/\.([a-zA-Z]*)/)[1];
+
+					let isClassCorrect = element.classList.contains(className);
+
+					if (!isClassCorrect) {
+						isMatch = false;
+						break;
+					}
+				} else if (singleSelector.match(/#[a-zA-Z]*/)) {
+					let id = singleSelector.match(/#([a-zA-Z]*)/)[1];
+					let isIdCorrect = element.id === id;
+
+					if (!isIdCorrect) {
+						isMatch = false;
+						break;
+					}
+				} else if (singleSelector.match(/[a-zA-Z]*/)) {
+					let tagName = singleSelector.match(/([a-zA-Z]*)/)[1];
+					let isTagNameCorrect = element.tagName.toLowerCase() === tagName;
+
+					if (!isTagNameCorrect) {
+						isMatch = false;
+						break;
+					}
+				}
+
+				starter += singleSelector.length;
+			}
+
+			return isMatch;
+		}
+
+		/*
+		 * 匹配方法
+		 * */
+	    function match(selector, element) {
+		    //  第一步，拆分复杂选择器
+		    let selectorSplitArr = selector.split(' ').reverse();
+
+		    let currentElement = element;
+		    let currentStep = 0;
+		    let isMatch = false;
+
+		    while (currentElement.tagName !== 'HTML') {
+		    	if (currentStep >= selectorSplitArr.length) {
+				    isMatch = true;
+				    break;
+			    }
+
+		    	//  比对当前元素和当前复合选择器
+			    let res = matchElement(selectorSplitArr[currentStep], currentElement);
+
+			    if (res) {
+			    	currentStep += 1;
+			    }
+
+			    currentElement = currentElement.parentElement;
+		    }
+
+		    console.log( isMatch )
+	    }
+
+	    match('div div.parent#parent p#child.child', document.querySelector('#child'));
+	    match('div div .child', document.querySelector('#child'));
+	    match('div .child', document.querySelector('#child'));
+	</script>
+</body>
+</html>
